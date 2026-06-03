@@ -383,6 +383,20 @@ class DriverLicenseTest {
             person.reactivateLicense();
             assertThat(person.getStatus()).isEqualTo("APPROVED");
         }
+
+        @Test
+        @DisplayName("Should store rejection reason when rejecting a license")
+        void shouldStoreRejectionReasonWhenRejected() {
+            // ARRANGE
+            DriverLicense person = new DriverLicense("1", "Applicant", 25,
+                                                    false, false, 0, "REGULAR");
+            // ACT
+            person.rejectLicense("Document invalid");
+
+            // ASSERT
+            assertThat(person.getStatus()).isEqualTo("REJECTED");
+            assertThat(person.getRejectionReason()).contains("Document invalid");
+        }
     }
 
     @Nested
