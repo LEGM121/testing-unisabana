@@ -33,6 +33,7 @@ public class DriverLicense {
     // Estado de la licencia
     private String licenseType;  // REGULAR, PUBLIC_SERVICE
     private String status;       // PENDING, APPROVED, REJECTED, SUSPENDED, EXPIRED
+    private String rejectionReason; // Motivo del rechazo cuando aplica
     
     /**
      * Constructor para solicitud de licencia de conducción de carros.
@@ -188,6 +189,7 @@ public class DriverLicense {
      */
     public void rejectLicense(String reason) {
         this.status = "REJECTED";
+        this.rejectionReason = reason;
     }
     
     /**
@@ -212,6 +214,10 @@ public class DriverLicense {
      * Obtiene el motivo de rechazo.
      */
     public String getRejectionReason() {
+        // Si se almacenó una razón explícita al rechazar, devolverla
+        if ("REJECTED".equals(this.status) && this.rejectionReason != null && !this.rejectionReason.trim().isEmpty()) {
+            return this.rejectionReason;
+        }
         if (!isWithinMaximumAge()) {
             return "Excede la edad máxima permitida (80 años)";
         }
