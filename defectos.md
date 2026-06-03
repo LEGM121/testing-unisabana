@@ -1,35 +1,12 @@
 # Defectos Encontrados y Análisis
 
-## Defecto #1: Validación de Edad Negativa
+## Defecto #1: Validación de Edad Negativa (ARCHIVADO)
 
 **ID**: DEF-001  
-**Estado**: CERRADO  
+**Estado**: ARCHIVADO (clase `Registry` eliminada)  
 **Severidad**: ALTA  
 
-### Descripción del Caso
-Al crear un `Registry` con edad negativa (-5), el sistema no rechaza la operación.
-
-### Resultado Esperado
-`IllegalArgumentException` con mensaje: "La edad no puede ser negativa"
-
-### Resultado Obtenido (ANTES)
-Se creaba un `Registry` con edad negativa, permitiendo estados inconsistentes en el dominio.
-
-### Causa Probable
-Falta de validación en el constructor de `Registry` para verificar que la edad esté en rango válido.
-
-### Solución Implementada
-Se agregó validación en el constructor:
-```java
-private void validateAge(int age) {
-    if (age < 0) {
-        throw new IllegalArgumentException("La edad no puede ser negativa");
-    }
-}
-```
-
-### Test que lo detecta
-`RegistryTest.shouldThrowExceptionWhenAgeIsNegative()`
+Nota: este defecto estaba documentado para la clase `Registry`; la clase fue eliminada del repositorio y las validaciones relevantes se migraron/validaron en otros artefactos. Mantengo el registro por trazabilidad.
 
 ---
 
@@ -127,37 +104,47 @@ if (!status.matches(validStatuses)) {
 
 ---
 
-## Defecto #5: Marcar Persona Fallecida Dos Veces
+## Defecto #5: Marcar Persona Fallecida Dos Veces (ARCHIVADO)
 
 **ID**: DEF-005  
-**Estado**: CERRADO  
+**Estado**: ARCHIVADO (clase `Registry` eliminada)  
+**Severidad**: BAJA  
+
+Nota: historial preservado. La clase `Registry` ya no forma parte del código activo.
+
+---
+
+## Nuevo Defecto #6: `rejectLicense` no persiste motivo de rechazo
+
+**ID**: DEF-006  
+**Estado**: ABIERTO  
 **Severidad**: BAJA  
 
 ### Descripción del Caso
-Se permite llamar a `markAsDead()` múltiples veces sobre la misma persona.
+El método `rejectLicense(String reason)` asigna `status = "REJECTED"` pero no guarda ni expone la razón de rechazo.
 
 ### Resultado Esperado
-Una vez marcada como fallecida, un segundo `markAsDead()` debe lanzar `IllegalStateException`
+La razón de rechazo debe guardarse en un campo (`rejectionReason`) y ser accesible mediante `getRejectionReason()` o similar.
 
-### Resultado Obtenido (ANTES)
-No había validación, permitiendo marcar múltiples veces.
+### Resultado Obtenido
+La razón no se almacena; `getRejectionReason()` actualmente es un diagnóstico calculado, no la razón pasada a `rejectLicense`.
 
 ### Causa Probable
-Falta de control de estado en el método `markAsDead()`.
+Falta de atributo para persistir el motivo y de tests que verifiquen su almacenamiento.
 
-### Solución Implementada
-Se agregó validación en `markAsDead()`:
-```java
-public void markAsDead() {
-    if (!isAlive) {
-        throw new IllegalStateException("La persona ya fue marcada como fallecida");
-    }
-    this.isAlive = false;
-}
-```
+### Prueba sugerida
+Agregar un test: `shouldStoreRejectionReasonWhenRejected()` que invoque `rejectLicense("motivo")` y verifique `getRejectionReason()` contiene "motivo".
 
-### Test que lo detecta
-`RegistryTest.shouldThrowExceptionWhenMarkingDeceasedTwice()`
+### Prioridad
+Baja — funcionalidad recomendada para trazabilidad/UX.
+
+### Estado de la corrección
+**DEF-006: CERRADO** — Se implementó `rejectionReason` en `DriverLicense` y se agregó el test `shouldStoreRejectionReasonWhenRejected()`.
+
+---
+
+## Observación sobre cobertura JaCoCo
+Ver `Results.md` para resumen del reporte de cobertura (`target/site/jacoco/index.html`).
 
 ---
 

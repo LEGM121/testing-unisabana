@@ -2,7 +2,7 @@
 
 ## Descripción del Proyecto
 
-**Dominio**: Gestión de Registro de Personas  
+**Dominio**: Elegibilidad para Licencias de Conducción (`DriverLicense`)
 **Objetivo**: Aplicar TDD, BDD, AAA, clases de equivalencia y cobertura de código
 
 ## Integrantes
@@ -19,8 +19,9 @@ Para la documentación completa del taller, consulte el **[Wiki del Repositorio]
 2. **[TDD: Red-Green-Refactor](https://github.com/LEGM121/testing-unisabana/wiki/TDD-History)** - 3+ iteraciones
 3. **[Patrón AAA](https://github.com/LEGM121/testing-unisabana/wiki/AAA-Pattern)** - Arrange-Act-Assert
 4. **[Clases de Equivalencia](https://github.com/LEGM121/testing-unisabana/wiki/Equivalence-Classes)** - Tabla y justificación
-5. **[BDD: Given-When-Then](https://github.com/LEGM121/testing-unisabana/wiki/BDD-Scenarios)** - Escenarios
-6. **[Resultados](https://github.com/LEGM121/testing-unisabana/wiki/Results)** - JaCoCo y conclusiones
+5. **[BDD: Given-When-Then](BDD-Scenarios.md)** - Escenarios
+6. **[Resultados](Results.md)** - JaCoCo y conclusiones
+7. **[TDD History](TDD-HISTORY.md)** - Ciclos Rojo/Verde/Refactor
 7. **[Defectos](https://github.com/LEGM121/testing-unisabana/wiki/Defects)** - Análisis de defectos
 
 ## Cómo Ejecutar
@@ -49,28 +50,26 @@ testing-unisabana/
 ├── src/
 │   ├── main/java/
 │   │   └── com/unisabana/domain/
-│   │       └── Registry.java          # Clase de dominio
+│   │       └── DriverLicense.java     # Clase de dominio principal
 │   └── test/java/
 │       └── com/unisabana/domain/
-│           └── RegistryTest.java      # Suite de pruebas
+│           └── DriverLicenseTest.java # Suite de pruebas
 ├── pom.xml                            # Configuración Maven + JaCoCo
 ├── .gitignore                         # Exclusiones Git
 ├── integrantes.txt                    # Información del equipo
 └── README.md                          # Este archivo
 ```
 
-## Clases de Equivalencia Cubiertas
+## Clases de Equivalencia Cubiertas (DriverLicense)
 
 | Clase | Rango | Tests |
 |-------|-------|-------|
-| Edad Negativa | < 0 | `shouldThrowExceptionWhenAgeIsNegative` |
-| Edad Válida Mínima | 0 | `shouldCreateRegistryWithValidAgeZero` |
-| Niños | 0-12 | `shouldIdentifyChildrenCorrectly` |
-| Adolescentes | 13-17 | `shouldIdentifyTeenagersCorrectly` |
-| Adultos | 18-64 | `shouldIdentifyAdultsCorrectly` |
-| Jubilados | 65-120 | `shouldIdentifySeniorsCorrectly` |
-| Edad Máxima Válida | 120 | `shouldCreateRegistryWithValidAgeMaximum` |
-| Edad Excesiva | > 120 | `shouldThrowExceptionWhenAgeExceedsMaximum` |
+| TOO_YOUNG | < 16 | `shouldRejectChildrenUnder16` |
+| ADOLESCENT | 16-17 | `shouldAllowRestrictedLicenseForAdolescents` |
+| YOUNG_ADULT | 18-22 | `shouldAllowYoungAdults` |
+| ADULT | 23-64 | `shouldAllowFullLicenseAdults` |
+| SENIOR | 65-80 | `shouldAllowSeniorsWithRenewal` |
+| TOO_OLD | > 80 | `shouldRejectOver80Years` |
 
 ## Valores Límite Identificados
 
@@ -85,36 +84,37 @@ testing-unisabana/
 
 ## Patrón AAA (Arrange-Act-Assert)
 
-Todos los tests siguen la estructura:
+Todos los tests siguen la estructura. Ejemplo aplicado a `DriverLicense`:
 
 ```java
 @Test
-@DisplayName("descripción clara en inglés")
-void shouldDescribeBehavior() {
+@DisplayName("Should retrieve driver attributes correctly")
+void shouldRetrieveAllAttributes() {
     // ARRANGE: Preparar datos de prueba
-    Registry person = new Registry("1", "Test", 35, "MARRIED");
-    
-    // ACT: Ejecutar la acción a probar
-    boolean isAdult = person.isAdult();
-    
+    DriverLicense person = new DriverLicense("1001", "Juan Pérez García", 25, false, false, 0, "REGULAR");
+
+    // ACT: Obtener atributos
+    String name = person.getFullName();
+
     // ASSERT: Verificar el resultado esperado
-    assertThat(isAdult).isTrue();
+    assertThat(name).isEqualTo("Juan Pérez García");
 }
 ```
 
 ## BDD: Escenarios Given-When-Then
 
-Ejemplo de test con BDD:
+Los tests siguen el estilo Given–When–Then en su descripción. Ejemplo:
 
 ```java
 @Test
-@DisplayName("Given empty marital status When creating registry Then throws exception")
-void shouldThrowExceptionWhenMaritalStatusIsEmpty() {
-    // Given: Estado civil vacío
-    // When: Se intenta crear un registro
-    // Then: Se lanza IllegalArgumentException
-    assertThatThrownBy(() -> new Registry("1", "Test", 25, ""))
-        .isInstanceOf(IllegalArgumentException.class);
+@DisplayName("Given a 22-year-old When applying for public service license Then should be rejected (too young)")
+void shouldRejectPublicServiceUnder23() {
+    // Given
+    DriverLicense youngDriver = new DriverLicense("1", "Young", 22, false, false, 0, "PUBLIC_SERVICE");
+    // When
+    boolean isEligible = youngDriver.isEligibleForLicense();
+    // Then
+    assertThat(isEligible).isFalse();
 }
 ```
 
