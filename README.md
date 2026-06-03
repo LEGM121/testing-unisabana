@@ -223,3 +223,17 @@ Justificación de los bordes: los tests deben cubrir inmediatamente antes y desp
 
 **Última actualización**: Junio 2026  
 **Estado**: En desarrollo
+
+## 🚀 CI/CD Pipeline
+
+### Estado del Pipeline CI
+El proyecto incluye un **workflow de CI (Continuous Integration)** que valida automáticamente cada push y pull request.
+
+**Ver el workflow completo**: [📊 GitHub Actions - CI Pipeline](https://github.com/LEGM121/testing-unisabana/actions/workflows/ci.yml)
+
+El pipeline ejecuta:
+- ✅ **Build**: Compilación con Maven
+- ✅ **Tests**: Ejecución de todas las pruebas unitarias
+- ✅ **Reportes**: Generación de reportes de test
+
+Para más detalles, consulta la pestaña **Actions** en el repositorio.
